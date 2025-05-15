@@ -1,0 +1,18 @@
+name: Deploy to Cloudways
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rsync to Cloudways
+        env:
+          SSH_KEY: ${{ secrets.CLOUDWAYS_SSH_KEY }}
+          HOST: ${{ secrets.CLOUDWAYS_HOST }}
+          USER: ${{ secrets.CLOUDWAYS_USER }}
+          PATH: ${{ secrets.CLOUDWAYS_DEPLOY_PATH }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ $USER@$HOST:$PATH
